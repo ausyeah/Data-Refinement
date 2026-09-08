@@ -1,0 +1,43 @@
+# 数据与模型产物（绝不入库）
+data/
+runs/
+models/
+checkpoints/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
+
+# HuggingFace 缓存（已重定向到 E:\hf-cache，见 SETUP.md）
+hf-cache/
+.cache/
+
+# 实验产物中较大的中间文件
+reports/*.parquet
+reports/*.csv
+reports/*.jsonl
+!reports/step0_schema.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# 密钥（重要：任何 token 都不得入库）
+.env
+.env.*
+*.token
+secrets/
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/

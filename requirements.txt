@@ -1,0 +1,16 @@
+# Core
+datasets>=3.0.0
+pandas>=2.2
+numpy>=1.26
+tqdm>=4.66
+pyarrow>=17.0
+
+# Stage B (probe training) — optional until Stage A passes the go/no-go gate
+# torch>=2.4
+# transformers>=4.51
+# peft>=0.12
+# bitsandbytes>=0.43
+# accelerate>=0.33
+
+# Note: `datasets` uses `streaming=True` for UltraX-Preview so the full ~487GB
+# dataset is never materialised locally. See SETUP.md for HF_HOME redirection.
