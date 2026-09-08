@@ -2,7 +2,7 @@
 
 作者：黄浩
 
-单位：（北京邮电大学 信息与通信工程学院，北京 100876）
+单位：（北京邮电大学 信息与通信工程学院，北京市海淀区西土城路10号，北京 100876）
 
 **摘要：**
 
@@ -22,7 +22,7 @@ CENTER:SliceAudit: Positional Tail-Truncation in LLM Data Refinement — A Slice
 
 作者：Hao HUANG
 
-单位：（School of Information and Communication Engineering, Beijing University of Posts and Telecommunications, Beijing 100876, China）
+单位：（School of Information and Communication Engineering, Beijing University of Posts and Telecommunications, No.10 Xitucheng Road, Haidian District, Beijing 100876, China）
 
 **Abstract：**
 
@@ -349,10 +349,9 @@ deduplicated docs, raw ≈88M / refined ≈66M tokens, equal-doc arms) is prepar
 runs/pilot/; the GPU probe-training script passed a CPU smoke test (docs/RUN_GUIDE.md).
 
 # References
-
-[1] UltraX. arXiv:2607.08646.
-[2] Tiered data management for AGI. arXiv:2602.09003.
-[3] Mallen et al. PopQA (ACL 2023). arXiv:2212.10511.
-[4] Chang et al. (NeurIPS 2024). arXiv:2406.11813.
-[5] Gururangan et al. DAPT (ACL 2020). arXiv:2004.10964.
-[6] wordfreq: multiscript word frequency data. R. Speer.
+[1] ZHAO X, LIU D, ZHAO H, et al. UltraX: refining pre-training data at scale with adaptive programmatic editing[EB/OL]. (2026-07-09)[2026-09-08]. https://doi.org/10.48550/arXiv.2607.08646.
+[2] WANG Y, FU Z, ZHAO H, et al. Data science and technology towards AGI part I: tiered data management[EB/OL]. (2026-02-09)[2026-09-08]. https://doi.org/10.48550/arXiv.2602.09003.
+[3] MALLEN A, ASAI A, ZHONG V, et al. When not to trust language models: investigating effectiveness of parametric and non-parametric memories[EB/OL]. (2022-12-20)[2026-09-08]. https://doi.org/10.48550/arXiv.2212.10511.
+[4] CHANG H, PARK J, YE S, et al. How do large language models acquire factual knowledge during pretraining?[EB/OL]. (2024-06-17)[2026-09-08]. https://doi.org/10.48550/arXiv.2406.11813.
+[5] GURURANGAN S, MARASOVIĆ A, SWAYAMDIpta S, et al. Don't stop pretraining: adapt language models to domains and tasks[EB/OL]. (2020-04-23)[2026-09-08]. https://doi.org/10.48550/arXiv.2004.10964.
+[6] SPEER R. wordfreq: multiscript word frequency data[CP/OL]. [2026-09-08]. https://github.com/rspeer/wordfreq.
