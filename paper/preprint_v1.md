@@ -8,7 +8,9 @@
 > (`src/stageb/`), pre-registration with revision log (`configs/preregistration.md`),
 > protocol (`docs/STAGEB_PROTOCOL.md`), and all result JSONs. Audited data
 > (`openbmb/UltraX-Preview`) is Apache-2.0.
-> All results in this draft are reproducible from the repo scripts, commit-traceable.
+> Reproducibility: every reported number maps to a committed JSON listed in
+> `docs/AUDIT_MANIFEST.md` (canonical audit trail = remote main commits; local git history was
+> rebuilt on 2026-09-08). Dependencies: `requirements.txt`.
 > Status markers: [DONE]=completed analysis; [OPEN]=planned/ongoing, reported as limitations.
 
 ---
@@ -25,8 +27,8 @@ Across 4 corpora (AICC, FineWeb, RedPajama-V2, Ultra-FineWeb; 146k deduplicated 
 we find: **(1)** the naive hypothesis that refinement deletes rare content does not hold within
 body text once length and position are controlled (rarity main effect p=0.43); **(2)** deletion is
 position-dominated — a mechanical *suffix-truncation* null model reproduces the observed
-rarity × position interaction almost exactly (−0.966 vs −0.916), implying the pipeline's deletion
-rule is positional rather than rarity-aware; whether and how much of the aggregate gain comes
+rarity × position interaction term (−0.966 vs −0.916) though not the position main effect,
+implying the pipeline's deletion rule is positional rather than rarity-aware; whether and how much of the aggregate gain comes
 from this tail-cutting, and whether the cut tail is cheap noise or costly knowledge, are open
 questions that downstream sliced probing (Stage B, §6) is designed to answer. **(3)** Word-level
 analysis [DONE, contact] shows that lost rare tokens are 74.7% knowledge-like vs. 98.0% among
@@ -333,7 +335,7 @@ All code, data hashes, and outputs: **https://github.com/ausyeah/artical** (MIT 
 | Stage-B probe pipeline (data prep → from-scratch trainer → sliced eval) | `src/stageb/00…02…` + `docs/RUN_GUIDE.md` |
 | Pre-registration with timestamped revision log | `configs/preregistration.md` |
 | Stage-B protocol (slice construction, leakage rules, pilot gates) | `docs/STAGEB_PROTOCOL.md` |
-| Result artifacts (every number in this draft) | `reports/step2_*`, `reports/step3_*` |
+| Result artifacts (JSON per reported number) | `reports/step2_*`, `reports/step3_*` — full inventory & regeneration: `docs/AUDIT_MANIFEST.md` |
 | Figures | `figures/fig2_stageA_v3.png` |
 
 Audited dataset: `openbmb/UltraX-Preview` (Apache-2.0). We download only sampled shards

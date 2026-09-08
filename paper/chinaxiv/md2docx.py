@@ -56,10 +56,15 @@ def para(doc, text="", *, ea=SONG, size=12, bold=False, align=None, indent_chars
 
 
 def merge_soft_wraps(lines):
+    CJK = lambda ch: '\u4e00' <= ch <= '\u9fff'
     out, buf = [], []
+
     def flush():
         if buf:
-            out.append("".join(buf).strip())
+            joined = buf[0]
+            for nxt in buf[1:]:
+                joined += ("" if CJK(joined[-1]) or CJK(nxt[0]) else " ") + nxt
+            out.append(joined.strip())
             buf.clear()
     for ln in lines:
         s = ln.strip()
@@ -73,8 +78,20 @@ def merge_soft_wraps(lines):
     return out
 
 
+def strip_inline_md(lines):
+    """去反引号与单星斜体标记（保留 ** 粗体由 add_runs 处理）。"""
+    out = []
+    for ln in lines:
+        ln = re.sub(r"`([^`]*)`", r"\1", ln)
+        ln = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"\1", ln)
+        out.append(ln)
+    return out
+
+
 def build(src: Path, out: Path):
-    lines = merge_soft_wraps(src.read_text(encoding="utf-8").splitlines())
+    raw = src.read_text(encoding="utf-8").splitlines()
+    raw = strip_inline_md(raw)
+    lines = merge_soft_wraps(raw)
     doc = Document()
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
