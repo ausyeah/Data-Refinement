@@ -1,0 +1,23 @@
+{
+ "E1c_contact": {
+  "n_docs": 114,
+  "mean_within_doc_pos_gap(rare-heavy − all)": -0.0119,
+  "share_positive": 0.4474,
+  "wilcoxon": {
+   "stat": 2967.0,
+   "p": 0.37999459992989837
+  },
+  "reading": ">0 = 稀有负载行偏居文档尾部（支持 E1c）"
+ },
+ "word_loss": {
+  "n_docs": 2000,
+  "lost_rare_know": 4070,
+  "lost_rare_noise": 1378,
+  "kept_rare_know": 26039,
+  "kept_rare_noise": 531,
+  "lost_common": 0,
+  "kept_common": 0,
+  "share_knowledge_lost": 0.7470631424375918,
+  "share_knowledge_kept": 0.9800150545728264
+ }
+}

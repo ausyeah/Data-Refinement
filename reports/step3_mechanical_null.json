@@ -1,0 +1,34 @@
+{
+ "observed": {
+  "n": 101046,
+  "pos_coef": 2.9933464089785775,
+  "rarity_pos_inter": -0.9159545878387061,
+  "rarity_coef": 0.5988857365410974,
+  "pos_p": 1.6462358067084465e-17,
+  "inter_p": 3.608316107435779e-39
+ },
+ "n_docs_suffix_sim": 4800,
+ "suffix_truncation_sim": {
+  "n": 101046,
+  "pos_coef": -2.05093523157444,
+  "rarity_pos_inter": -0.9661393887325784,
+  "rarity_coef": 0.6790999101415797,
+  "pos_p": 0.059706394612338155,
+  "inter_p": 2.46904749301917e-06
+ },
+ "random_deletion_sim": {
+  "n": 101046,
+  "pos_coef": -0.13649341579969584,
+  "rarity_pos_inter": 0.038517146920763516,
+  "rarity_coef": 0.01587436203395755,
+  "pos_p": 0.6241425175305109,
+  "inter_p": 0.4704358286469086
+ },
+ "T1_lite": {
+  "n_pure_delete_docs": 1799,
+  "share_pure_delete_docs": 0.3748,
+  "note": "纯 remove_lines 文档（无 replace_str 干扰行合并）上，行匹配与操作日志可精确对齐",
+  "pure_delete_pos_coef": 1.3017098837713026,
+  "pure_delete_pos_p": 4.109074417167504e-14
+ }
+}
