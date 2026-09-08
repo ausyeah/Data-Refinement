@@ -37,8 +37,8 @@ def add_runs(par, text, *, ea=SONG, ascii_=TNR, size=12, base_bold=False):
         set_run(run, ea=ea, ascii_=ascii_, size=size, bold=base_bold or i % 2 == 1)
 
 
-def para(doc, text="", *, ea=SONG, size=12, bold=False, align=None, indent_chars=0,
-         line=1.5, before=0, after=0, left_cm=None):
+def para(doc, text="", *, ea=SONG, ascii_=TNR, size=12, bold=False, align=None,
+         indent_chars=0, line=1.5, before=0, after=0, left_cm=None):
     p = doc.add_paragraph()
     pf = p.paragraph_format
     pf.line_spacing = line
@@ -51,7 +51,7 @@ def para(doc, text="", *, ea=SONG, size=12, bold=False, align=None, indent_chars
     if left_cm is not None:
         pf.left_indent = Cm(left_cm)
     if text:
-        add_runs(p, text, ea=ea, size=size, base_bold=bold)
+        add_runs(p, text, ea=ea, ascii_=ascii_, size=size, base_bold=bold)
     return p
 
 
@@ -79,11 +79,12 @@ def merge_soft_wraps(lines):
 
 
 def strip_inline_md(lines):
-    """去反引号与单星斜体标记（保留 ** 粗体由 add_runs 处理）。"""
+    """去反引号、单星斜体标记与 Markdown 转义反斜杠（保留 ** 粗体由 add_runs 处理）。"""
     out = []
     for ln in lines:
         ln = re.sub(r"`([^`]*)`", r"\1", ln)
-        ln = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"\1", ln)
+        ln = re.sub(r"\\([\*'#])", r"\1", ln)                 # 去除 \* \' 等转义
+        ln = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"\1", ln) # 单星斜体 → 去星
         out.append(ln)
     return out
 
@@ -96,6 +97,17 @@ def build(src: Path, out: Path):
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
     sec.top_margin = sec.bottom_margin = sec.left_margin = sec.right_margin = Cm(2.5)
+    # 页脚居中页码
+    fp = sec.footer.paragraphs[0]
+    fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r1 = fp.add_run()
+    fld = r1._element
+    import docx.oxml.ns as ns
+    b, i_, e = ns.qn("w:fldChar"), ns.qn("w:instrText"), ns.qn("w:fldChar")
+    fldB = fld.makeelement(b, {ns.qn("w:fldCharType"): "begin"}); fld.append(fldB)
+    it = fld.makeelement(i_, {}); it.text = " PAGE "; fld.append(it)
+    fldE = fld.makeelement(e, {ns.qn("w:fldCharType"): "end"}); fld.append(fldE)
+    for r in fp.runs: r.font.size = Pt(9)
 
     h1_seen = 0
     i = 0
@@ -131,14 +143,19 @@ def build(src: Path, out: Path):
             para(doc, s.lstrip("#").strip(), ea=SONG, size=12, bold=True,
                  indent_chars=2, before=8, after=4)
         elif s.startswith("##"):
-            para(doc, s.lstrip("#").strip(), ea=KAI, size=12, bold=False,
-                 before=10, after=4)
+            t = s.lstrip("#").strip()
+            if re.search(r"[\u4e00-\u9fff]", t):
+                para(doc, t, ea=KAI, size=12, bold=False, before=10, after=4)
+            else:                                   # 英文二级标题：TNR 粗体，不再用楷体
+                para(doc, t, ea=HEI, ascii_=TNR, size=12, bold=True, before=10, after=4)
         elif s.startswith("#"):
             text = s.lstrip("#").strip()
             h1_seen += 1
-            if h1_seen > 2:
-                doc.add_page_break()
-            if h1_seen == 1:
+            # 不自动分页（连续排版）；摘要/Abstract 用规范样式
+            if text == "摘要" or text == "Abstract":
+                para(doc, text, ea=HEI, ascii_=TNR, size=10.5, bold=True,
+                     align=WD_ALIGN_PARAGRAPH.CENTER, before=10, after=6)
+            elif h1_seen == 1:
                 para(doc, text, ea=SONG, size=22, bold=True,
                      align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=10)
             else:
@@ -166,6 +183,13 @@ def build(src: Path, out: Path):
                 continue
             if re.match(r"\[\d+\]", s):
                 para(doc, text, size=10.5, line=1.25)
+                i += 1
+                continue
+            ABSTRACT_PFX = ("**目的", "**方法", "**结果", "**局限", "**结论",
+                            "**关键词", "**Objective", "**Methods", "**Results",
+                            "**Limitations", "**Conclusions", "**Keywords")
+            if s.startswith(ABSTRACT_PFX):      # 摘要/关键词段：五号 10.5
+                para(doc, text, size=10.5)
                 i += 1
                 continue
             para(doc, text, size=12, align=align, indent_chars=indent)

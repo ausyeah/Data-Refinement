@@ -195,7 +195,7 @@ over simulated is the genuine signal.
 | suffix-truncation sim | −2.05 | +0.68 | **−0.966** | reproduces the interaction |
 | random-deletion sim | −0.14 | +0.02 | +0.04 | null control behaves |
 
-\* M3 includes the rarity×pos interaction; its pos coefficient (+2.99) is the conditional effect
+Note: M3 includes the rarity×pos interaction; its pos coefficient (+2.99) is the conditional effect
 at rarity=0. At representative rarities the position marginal effect is negative: at rarity≈4.3
 (average), pos effect ≈ 2.99 + 4.3×(−0.916) ≈ −0.95, consistent with M1's negative pos effect.
 The sign difference between M1 and M3 is therefore a consequence of the interaction, not a
@@ -335,9 +335,9 @@ runs/pilot/; the GPU probe-training script passed a CPU smoke test (docs/RUN_GUI
 
 # References
 
-- UltraX. arXiv:2607.08646.
-- Tiered data management for AGI. arXiv:2602.09003.
-- Mallen et al. PopQA (ACL 2023). arXiv:2212.10511.
-- Chang et al. (NeurIPS 2024). arXiv:2406.11813.
-- Gururangan et al. DAPT (ACL 2020). arXiv:2004.10964.
-- wordfreq: multiscript word frequency data. R. Speer.
+[1] UltraX. arXiv:2607.08646.
+[2] Tiered data management for AGI. arXiv:2602.09003.
+[3] Mallen et al. PopQA (ACL 2023). arXiv:2212.10511.
+[4] Chang et al. (NeurIPS 2024). arXiv:2406.11813.
+[5] Gururangan et al. DAPT (ACL 2020). arXiv:2004.10964.
+[6] wordfreq: multiscript word frequency data. R. Speer.
