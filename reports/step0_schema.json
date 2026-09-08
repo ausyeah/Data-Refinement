@@ -1,0 +1,38 @@
+{
+  "dataset_id": "openbmb/UltraX-Preview",
+  "n_probed": 100,
+  "fields": [
+    "uid",
+    "raw_content",
+    "cleaned_content",
+    "processed_functions",
+    "source"
+  ],
+  "schema": {
+    "uid": {
+      "type": "str",
+      "nonnull_in_first20": 20,
+      "sample_value": "5da5f544941d473ce87844d7b3e8a6f4"
+    },
+    "raw_content": {
+      "type": "str",
+      "nonnull_in_first20": 20,
+      "sample_value": "<table><thead><tr><th>Name</th><th>Size</th><th>Rev</th><th>Age</th><th>Author</th><th>Last Change</th></tr></thead><tbody><tr><td colspan=\"6\">../</td></tr><tr><td>scripts-syslog-ng-config</td><td></td><td>2419</td><td>12 years</td><td>achernya</td><td>Actually have a .transform script</td></tr><tr><td>scripts-vm-host</td><td></td><td>2420</td><td>12 years</td><td>achernya</td><td>Actually have a .transform script here too</td></tr></tbody></table>\n"
+    },
+    "cleaned_content": {
+      "type": "str",
+      "nonnull_in_first20": 20,
+      "sample_value": "<table><thead><tr><th>Name</th><th>Size</th><th>Rev</th><th>Age</th><th>Author</th><th>Last Change</th></tr></thead><tbody><tr><td colspan=\"6\">../</td></tr><tr><td>scripts-syslog-ng-config</td><td></td><td>2419</td><td>12 years</td><td>achernya</td><td>Actually have a .transform script</td></tr><tr><td>scripts-vm-host</td><td></td><td>2420</td><td>12 years</td><td>achernya</td><td>Actually have a .transform script here too</td></tr></tbody></table>"
+    },
+    "processed_functions": {
+      "type": "str",
+      "nonnull_in_first20": 20,
+      "sample_value": "replace_str(1, '\\n', '')"
+    },
+    "source": {
+      "type": "str",
+      "nonnull_in_first20": 20,
+      "sample_value": "AICC"
+    }
+  }
+}

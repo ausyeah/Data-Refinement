@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "n_docs": 3957,
+    "n_lines": 138968,
+    "n_rows": 138968,
+    "skipped_short": 1043,
+    "seed": 20260908,
+    "keep_threshold": 90.0,
+    "rare_zipf": 2.0,
+    "dataset": "openbmb/UltraX-Preview"
+  },
+  "op_taxonomy": {
+    "replace_str": 4439,
+    "remove_lines": 19606,
+    "add_line": 260
+  },
+  "primary": {
+    "statistic": "mean over docs of [ mean_zipf(deleted lines) - mean_zipf(kept lines) ]",
+    "mean_gap": -0.7008641516523478,
+    "ci95": [
+      -0.7266776789353135,
+      -0.6712744504186464
+    ],
+    "share_docs_negative": 0.7994791666666666,
+    "perm_p_one_sided": 0.0,
+    "n_perm": 500,
+    "note": "负值 = 被删内容比保留内容更稀有（支持长尾偏斜假说）"
+  },
+  "deletion_rates": {
+    "all_lines": 0.17683927235046917,
+    "rare_known_lines(rare_known_frac>=0.10)": 0.19382434414208896,
+    "high_freq_lines(mean_zipf>=4)": 0.15950542079118168,
+    "n_rare": 12274,
+    "n_common": 110316
+  },
+  "oov_channel": {
+    "oov_frac_deleted": 0.08465680569684639,
+    "oov_frac_kept": 0.03996786516657488,
+    "note": "OOV（URL/代码/非英语词）是结构性通道，与稀有度通道分离报告"
+  },
+  "length_buckets": {
+    "1-5": {
+      "n": 70243,
+      "del_rate": 0.1576,
+      "zipf_del": 4.765,
+      "zipf_kept": 4.472,
+      "gap": 0.293
+    },
+    "6-15": {
+      "n": 35920,
+      "del_rate": 0.2342,
+      "zipf_del": 4.31,
+      "zipf_kept": 4.885,
+      "gap": -0.576
+    },
+    "16-40": {
+      "n": 19383,
+      "del_rate": 0.2232,
+      "zipf_del": 4.406,
+      "zipf_kept": 5.477,
+      "gap": -1.071
+    },
+    "40+": {
+      "n": 11864,
+      "del_rate": 0.0543,
+      "zipf_del": 4.677,
+      "zipf_kept": 5.592,
+      "gap": -0.915
+    }
+  },
+  "headings": {
+    "n": 15721,
+    "del_rate": 0.076,
+    "body_del_rate": 0.1897
+  },
+  "controls": {
+    "prose_only_gap": -0.2772901193539745,
+    "prose_only_mean_del": 4.540838569257936,
+    "prose_only_mean_kept": 4.81812868861191,
+    "n_prose": 138553
+  },
+  "descriptive": {
+    "median_doc_rare_rate_del": 0.0
+  }
+}
