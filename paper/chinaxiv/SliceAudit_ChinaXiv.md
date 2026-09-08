@@ -1,39 +1,54 @@
 # 数据精炼的切片级审计：以 UltraX 为例的位置性尾截与稀有度代价测量
 
-作者：黄浩（北京邮电大学 信息与通信工程学院）
+作者：黄浩
 
-> 预印本说明：本文为投稿前预印本（preprint），尚未经同行评审。开源代码、预注册与全部结果
-> JSON 存于 https://github.com/ausyeah/artical（MIT；正式公开前对审阅人开放）；审计轨迹以仓库
-> 远端 main 的 commit 为准（docs/AUDIT_MANIFEST.md）。本文为 measurement-first audit：
-> 阶段 A（切片审计）完成；阶段 B（下游代价 E2）按预注册协议进行中，属本文 OPEN 部分。
-# 摘要
+单位：（北京邮电大学 信息与通信工程学院，北京 100876）
 
-**目的[Objective]**　检验工业级数据精炼流水线（面壁 UltraX，arXiv 2607.08646）的编辑行为是否在长尾/稀有内容上存在系统性偏斜，以及其聚合收益声明（16B 精炼 tokens 优于 20B 原始 tokens）是否掩盖切片层面的代价。
+**摘要：**
 
-**方法[Methods]**　以 UltraX 公开的「原文+精炼+编辑操作」三元组为被测对象，在 4 个英文语料（AICC/FineWeb/RedPajama-V2/Ultra-FineWeb，去重后 14.6 万篇）上做行级切片审计：稀有度用 wordfreq zipf 并剥离 OOV 结构通道；删除判定用行级模糊匹配并与操作日志交叉验证；主推断用文档聚类稳健 Logistic；并以「纯后缀截断」机械零模型分离流水线规则与语料自身形状；预注册确认性终点与修订日志公开。
+**[目的]** 检验工业级数据精炼流水线（面壁 UltraX，arXiv 2607.08646）的编辑行为是否在长尾/稀有内容上存在系统性偏斜，以及其聚合收益声明（16B 精炼 tokens 优于 20B 原始 tokens）是否掩盖切片层面的代价。
 
-**结果[Results]**　正文行内稀有度对删除无主效应（p=0.43）；删除以位置为主导；稀有度×位置交互项在机械尾截下被复现（−0.966 vs −0.916，但位置主效应不匹配），表明删除规则是位置性的而非稀有度感知的；词级分析（接触、探索性）显示被删稀有 token 的知识占比（74.7%）低于保留池（98.0%）与语料基准（94.0%）——相对比例上删除更偏向非知识 token，但绝对量仍移除约每文档 2 个知识型稀有词，净效应方向未测。
+**[方法]** 以 UltraX 公开的「原文+精炼+编辑操作」三元组为被测对象，在 4 个英文语料（AICC/FineWeb/RedPajama-V2/Ultra-FineWeb，去重后 14.6 万篇）上做行级切片审计：稀有度用 wordfreq zipf 并剥离 OOV 结构通道；删除判定用行级模糊匹配并与操作日志交叉验证；主推断用文档聚类稳健 Logistic；以「纯后缀截断」机械零模型分离流水线规则与语料自身形状；预注册确认性终点与修订日志公开。
 
-**局限[Limitations]**　本稿为测量侧审计，尚无下游代价证据（E2 未完成）；单一精炼系统案例；行级匹配仅在计数层面验证（r=0.894）；E1c 语料形状前提在行级功效不足；知识/噪声代理粗糙且部分循环；仅英文语料。
+**[结果]** 正文行内稀有度对删除无主效应（p=0.43）；删除以位置为主导；稀有度×位置交互项在机械尾截下被复现（−0.966 vs −0.916，但位置主效应不匹配），表明删除规则是位置性的而非稀有度感知的；词级分析（接触、探索性）显示被删稀有 token 的知识占比（74.7%）低于保留池（98.0%）与语料基准（94.0%）：相对比例上删除更偏向非知识 token，但绝对量仍移除约每文档 2 个知识型稀有词，净效应方向未测。
 
-**结论[Conclusions]**　审计侧结论稳健：UltraX 的删除规则是位置性（非稀有感知）的，聚合收益是否及在多大程度上来自尾截、被切尾部是廉价噪声还是稀有知识，取决于进行中的 E2。方法学贡献（行级审计 + 机械零模型分离规则与语料形状）可复用于同类精炼系统的评估。
+**[局限]** 本稿为测量侧审计，尚无下游代价证据（E2 未完成）；单一精炼系统案例；行级匹配仅在计数层面验证（r=0.894）；E1c 语料形状前提在行级功效不足；知识/噪声代理粗糙且部分循环；仅英文语料。
 
-**关键词**　数据精炼；语料清洗；位置性尾截；长尾稀有度；预训练数据质量；切片评估
-# Abstract
+**[结论]** 审计侧结论稳健：UltraX 的删除规则是位置性（非稀有感知）的，聚合收益是否及在多大程度上来自尾截、被切尾部是廉价噪声还是稀有知识，取决于进行中的 E2。方法学贡献（行级审计 + 机械零模型分离规则与语料形状）可复用于同类精炼系统的评估。
 
-**Objective** To test whether the edit behavior of an industrial data-refinement pipeline (UltraX, arXiv:2607.08646) is systematically skewed against long-tail/rare content, and whether its aggregate gain claim (16B refined tokens beating 20B raw tokens) conceals slice-level costs.
+**关键词：**数据精炼；语料清洗；位置性尾截；长尾稀有度；预训练数据质量；切片评估
 
-**Methods** We audit UltraX's public (raw, refined, edit-operation) triples as the object of study across four English corpora (AICC / FineWeb / RedPajama-V2 / Ultra-FineWeb; 146k deduplicated docs): line-level rarity via wordfreq zipf with OOV stripped as a structural channel; deletion judged by fuzzy line matching cross-checked against operation logs; inference via document-clustered robust logistic models; a pure suffix-truncation mechanical null separates the pipeline's rule from the corpus's own shape; confirmatory endpoints and a revision log are pre-registered.
+CENTER:SliceAudit: Positional Tail-Truncation in LLM Data Refinement — A Sliced Audit of UltraX
 
-**Results** Rarity has no main effect on deletion within body prose (p=0.43); deletion is position-dominated; the rarity×position interaction term, but not the position main effect, is reproduced by mechanical suffix truncation (−0.966 vs −0.916), indicating the deletion rule is positional rather than rarity-aware. Word-level analysis (contact, exploratory) shows lost rare tokens are 74.7% knowledge-like vs 98.0% in the kept pool and 94.0% in the corpus base rate — relative deletion favors non-knowledge tokens, yet ≈2 knowledge-like rare tokens per document are still removed; the net direction is unmeasured.
+作者：Hao HUANG
 
-**Limitations** Measurement-side audit only; no downstream-cost evidence yet (E2 outstanding); single refinement system as case study; matcher validated at count level (r=0.894); E1c corpus-shape premise underpowered at line level; knowledge/noise proxy coarse and partly circular; English corpora only.
+单位：（School of Information and Communication Engineering, Beijing University of Posts and Telecommunications, Beijing 100876, China）
 
-**Conclusions** The audit-side result is robust: UltraX's deletion rule is positional, not rarity-aware; whether and how much of the aggregate gain comes from tail-cutting, and whether the cut tail is cheap noise or costly knowledge, depends on the ongoing downstream stage (E2). The methodology (line-level audit plus a mechanical null separating rule from corpus shape) is reusable for evaluating learned refinement systems.
+**Abstract：**
 
-**Keywords** data refinement; corpus cleaning; positional tail-truncation; long-tail rarity; pretraining data quality; sliced evaluation
+**[Objective]** To test whether the edit behavior of an industrial data-refinement pipeline (UltraX, arXiv:2607.08646) is systematically skewed against long-tail/rare content, and whether its aggregate gain claim (16B refined tokens beating 20B raw tokens) conceals slice-level costs.
 
-# 1. Introduction
+**[Methods]** We audit UltraX's public (raw, refined, edit-operation) triples as the object of study across four English corpora (AICC / FineWeb / RedPajama-V2 / Ultra-FineWeb; 146k deduplicated docs): line-level rarity via wordfreq zipf with OOV stripped as a structural channel; deletion judged by fuzzy line matching cross-checked against operation logs; inference via document-clustered robust logistic models; a pure suffix-truncation mechanical null separates the pipeline's rule from the corpus's own shape; confirmatory endpoints and a revision log are pre-registered.
+
+**[Results]** Rarity has no main effect on deletion within body prose (p=0.43); deletion is position-dominated; the rarity×position interaction term, but not the position main effect, is reproduced by mechanical suffix truncation (−0.966 vs −0.916), indicating the deletion rule is positional rather than rarity-aware. Word-level analysis (contact, exploratory) shows lost rare tokens are 74.7% knowledge-like vs 98.0% in the kept pool and 94.0% in the corpus base rate: relative deletion favors non-knowledge tokens, yet ≈2 knowledge-like rare tokens per document are still removed; the net direction is unmeasured.
+
+**[Limitations]** Measurement-side audit only; no downstream-cost evidence yet (E2 outstanding); single refinement system as case study; matcher validated at count level (r=0.894); E1c corpus-shape premise underpowered at line level; knowledge/noise proxy coarse and partly circular; English corpora only.
+
+**[Conclusions]** The audit-side result is robust: UltraX's deletion rule is positional, not rarity-aware; whether and how much of the aggregate gain comes from tail-cutting, and whether the cut tail is cheap noise or costly knowledge, depends on the ongoing downstream stage (E2). The methodology (line-level audit plus a mechanical null separating rule from corpus shape) is reusable for evaluating learned refinement systems.
+
+**Keywords：**data refinement; corpus cleaning; positional tail-truncation; long-tail rarity; pretraining data quality; sliced evaluation
+
+> 预印本说明：本文为投稿前预印本（preprint），尚未经同行评审。开源代码、预注册与全部结果 JSON 存于
+> https://github.com/ausyeah/artical（MIT；正式公开前对审阅人开放）；审计轨迹以仓库远端 main 的
+> commit 为准（docs/AUDIT_MANIFEST.md）。本文为 measurement-first audit：阶段 A（切片审计）完成；
+> 阶段 B（下游代价 E2）按预注册协议进行中，属本文 OPEN 部分。
+
+> 作者贡献：黄浩完成研究命题与设计、实验实施、数据获取与分析、论文起草与修订（唯一作者）。
+
+> 致谢：感谢面壁智能/OpenBMB 团队公开 UltraX 及其干预留痕数据，使本研究得以在真实工业干预上进行；对审稿期间收到的建设性意见一并致谢。
+
+
+# 1 Introduction
 
 Data quality is now a first-class lever in LLM pretraining. UltraX, released by the MiniCPM/OpenBMB
 team in 2026, refines web-scale corpora by training a **lightweight model** (released weights:
@@ -70,7 +85,7 @@ cleaner's rule from the corpus shape it acts on.
 
 ---
 
-# 2. Related Work
+# 2 Related Work
 
 **Data refinement and cleaning.** UltraX (arXiv 2607.08646) and its tiered governance framework
 (arXiv 2602.09003) sit in a long line of corpus-cleaning work (e.g., Ultra-FineWeb, RefineX).
@@ -104,7 +119,7 @@ cited precisely in the final version). Those studies measure the bias of filters
 ours measures the edit behavior of one specific learned refiner and separates its rule from the
 corpus shape. Positioning against this literature is completed in the next revision.
 
-# 3. Object and Data
+# 3 Object and Data
 
 We audit openbmb/UltraX-Preview (Apache-2.0; ≈114M records). Fields: uid,
 raw_content, cleaned_content, processed_functions (line-oriented, function-call format),
@@ -136,7 +151,7 @@ UltraX a second time (second-order refinement), which we flag because its weaker
 
 ---
 
-# 4. Method
+# 4 Method
 
 ## 4.1 What counts as "deleted"
 
@@ -184,7 +199,7 @@ over simulated is the genuine signal.
 
 ---
 
-# 5. Results 
+# 5 Results 
 
 ## 5.1 Deletion is position-dominated, not rarity-aware
 
@@ -270,7 +285,7 @@ length normalization** and is reported as such (pre-registered falsification rul
 
 ---
 
-# 6. Ongoing Work (Stage B) — the load-bearing experiment
+# 6 Ongoing Work (Stage B) — the load-bearing experiment
 
 Pre-registered endpoint (v1.1): **E2** — do probes trained on refined vs raw corpora show a
 sliced downstream difference on tail-knowledge strata (Δ_tailK = PPL(refined) − PPL(raw) on
@@ -293,7 +308,7 @@ yet available; nothing in this preprint's Stage-A conclusions depends on them.
 
 ---
 
-# 7. Limitations
+# 7 Limitations
 
 1. **Measurement-only audit; no downstream-consequence evidence yet.** This preprint establishes
    what refinement deletes and that its rule is positional; it does not yet establish whether
@@ -314,7 +329,7 @@ yet available; nothing in this preprint's Stage-A conclusions depends on them.
    data (the system is by the OpenBMB/MiniCPM lab); the publicly released intervention traces
    used here are the English shards, which is the reason for the English-only scope.
 
-# 8. Reproducibility and Open Source
+# 8 Reproducibility and Open Source
 
 All code, data hashes, and outputs: **https://github.com/ausyeah/artical** (MIT license).
 

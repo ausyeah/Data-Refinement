@@ -68,7 +68,7 @@ def merge_soft_wraps(lines):
             buf.clear()
     for ln in lines:
         s = ln.strip()
-        if (s == "" or s == "---" or s.startswith(("#", "|", ">", "- "))
+        if (s == "" or s == "---" or s.startswith(("#", "|", ">", "- ", "["))
                 or re.match(r"\[\d+\]", s)):
             flush()
             out.append(ln)
@@ -181,13 +181,21 @@ def build(src: Path, out: Path):
                 para(doc, text, size=size, align=align)
                 i += 1
                 continue
-            if re.match(r"\[\d+\]", s):
-                para(doc, text, size=10.5, line=1.25)
+            if s.startswith("CENTER:"):                 # 居中指令：英文题名等
+                para(doc, s[7:].strip(), ascii_=TNR, size=14, bold=True,
+                     align=WD_ALIGN_PARAGRAPH.CENTER)
                 i += 1
                 continue
-            ABSTRACT_PFX = ("**目的", "**方法", "**结果", "**局限", "**结论",
-                            "**关键词", "**Objective", "**Methods", "**Results",
-                            "**Limitations", "**Conclusions", "**Keywords")
+            if re.match(r"\[\d+\]", s):
+                para(doc, text, size=9, line=1.25)      # 参考文献：小五号 9pt
+                i += 1
+                continue
+            ABSTRACT_PFX = ("**[目的]", "**[方法]", "**[结果]", "**[局限]", "**[结论]",
+                            "**[Objective]", "**[Methods]", "**[Results]",
+                            "**[Limitations]", "**[Conclusions]",
+                            "**摘要：", "**Abstract：", "**关键词：", "**Keywords：",
+                            "**目的[Objective]", "**方法[Methods]", "**结果[Results]",
+                            "**局限[Limitations]", "**结论[Conclusions]")
             if s.startswith(ABSTRACT_PFX):      # 摘要/关键词段：五号 10.5
                 para(doc, text, size=10.5)
                 i += 1
