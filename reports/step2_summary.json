@@ -1,0 +1,143 @@
+{
+  "meta": {
+    "n_docs": 4800,
+    "n_lines": 101250,
+    "subsets": [
+      "AICC",
+      "FineWeb",
+      "RedPajama",
+      "Ultra-FineWeb"
+    ],
+    "per_subset_docs": {
+      "AICC": 1200,
+      "FineWeb": 1200,
+      "RedPajama": 1200,
+      "Ultra-FineWeb": 1200
+    },
+    "seed": 20260908,
+    "primary_threshold": 90
+  },
+  "PRIMARY_bucket_weighted_gap": -0.2129,
+  "bucket_gaps": {
+    "1-5": {
+      "mean_gap": 0.1305072400573293,
+      "ci95": [
+        0.07116453771222375,
+        0.1853428107410443
+      ],
+      "n_docs": 1131,
+      "token_share": 0.0302
+    },
+    "6-15": {
+      "mean_gap": -0.31197933069866657,
+      "ci95": [
+        -0.3559774146520257,
+        -0.2690898395061353
+      ],
+      "n_docs": 1435,
+      "token_share": 0.0964
+    },
+    "16-40": {
+      "mean_gap": -0.2828541084274247,
+      "ci95": [
+        -0.3402603671466494,
+        -0.22653840642944648
+      ],
+      "n_docs": 640,
+      "token_share": 0.2014
+    },
+    "40+": {
+      "mean_gap": -0.1930980328001705,
+      "ci95": [
+        -0.25940249868726906,
+        -0.12545727860117561
+      ],
+      "n_docs": 233,
+      "token_share": 0.6719
+    }
+  },
+  "overall_gaps": {
+    "all": {
+      "mean": -0.9979435425685423,
+      "ci95": [
+        -1.8263333333333334,
+        -0.16955375180375132
+      ]
+    },
+    "prose": {
+      "mean": -0.34288301958085876,
+      "ci95": [
+        -0.3715623983303048,
+        -0.3135206809040814
+      ]
+    }
+  },
+  "tests": {
+    "wilcoxon_prose": {
+      "n": 2777,
+      "W+": 1037668.0,
+      "z": -21.085,
+      "p_two_sided": 0.0,
+      "sign_test_p": null
+    },
+    "sign_test_prose": {
+      "n": 2777,
+      "n_negative": 1827,
+      "share_negative": 0.6579042131796903,
+      "p_one_sided": 2.1715375880434864e-63
+    }
+  },
+  "threshold_sensitivity": {
+    "85": {
+      "del_rate": 0.1083,
+      "gap_pooled": -0.354
+    },
+    "90": {
+      "del_rate": 0.1105,
+      "gap_pooled": -0.359
+    },
+    "95": {
+      "del_rate": 0.1151,
+      "gap_pooled": -0.372
+    }
+  },
+  "ops_cross_validation": {
+    "pearson_r": 0.894,
+    "median_ops_removed": 1.0,
+    "median_judged_deleted": 1.0,
+    "note": "两者口径不同（操作区间数 vs 模糊匹配行数），只需正相关且量级可解释"
+  },
+  "per_subset_gap_prose": {
+    "AICC": {
+      "n": 822,
+      "gap_prose": -0.462,
+      "share_neg": 0.692
+    },
+    "FineWeb": {
+      "n": 621,
+      "gap_prose": -0.148,
+      "share_neg": 0.556
+    },
+    "RedPajama": {
+      "n": 882,
+      "gap_prose": -0.482,
+      "share_neg": 0.769
+    },
+    "Ultra-FineWeb": {
+      "n": 452,
+      "gap_prose": -0.121,
+      "share_neg": 0.52
+    }
+  },
+  "deletion_rates": {
+    "all": 0.1105,
+    "rare_known": 0.1456,
+    "high_freq": 0.1015,
+    "headings": 0.0552,
+    "body": 0.1128
+  },
+  "oov": {
+    "deleted": 0.060592208720514656,
+    "kept": 0.0235474138888272
+  }
+}

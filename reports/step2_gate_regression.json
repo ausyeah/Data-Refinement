@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "n_lines": 101046,
+    "n_docs": 4800,
+    "cov_type": "cluster(by doc)",
+    "threshold": 90
+  },
+  "models": {
+    "M1_prose": {
+      "n": 100917,
+      "coef": {
+        "Intercept": 1.0768,
+        "rarity_mean": 0.0958,
+        "log_n_words": 0.5645,
+        "pos": -1.4803,
+        "oov_frac": -2.6979
+      },
+      "odds_ratio": {
+        "Intercept": 2.9352,
+        "rarity_mean": 1.1006,
+        "log_n_words": 1.7585,
+        "pos": 0.2276,
+        "oov_frac": 0.0673
+      },
+      "p": {
+        "Intercept": 0.03663374957874788,
+        "rarity_mean": 0.4251035591458532,
+        "log_n_words": 7.96876643888971e-21,
+        "pos": 9.05962195903473e-49,
+        "oov_frac": 3.691903434353209e-07
+      },
+      "pseudo_r2": 0.0919
+    },
+    "M2_all": {
+      "n": 101046,
+      "coef": {
+        "Intercept": 0.8856,
+        "rarity_mean": 0.1058,
+        "is_heading": 4.6138,
+        "rarity_mean:is_heading": -0.6937,
+        "log_n_words": 0.5987,
+        "pos": -1.4493,
+        "oov_frac": -2.6188
+      },
+      "odds_ratio": {
+        "Intercept": 2.4246,
+        "rarity_mean": 1.1116,
+        "is_heading": 100.8628,
+        "rarity_mean:is_heading": 0.4997,
+        "log_n_words": 1.8198,
+        "pos": 0.2347,
+        "oov_frac": 0.0729
+      },
+      "p": {
+        "Intercept": 0.11004791635519443,
+        "rarity_mean": 0.4076264065658012,
+        "is_heading": 1.1505232758675278e-06,
+        "rarity_mean:is_heading": 0.00011318048237086653,
+        "log_n_words": 1.055946426429142e-21,
+        "pos": 1.861243006593663e-47,
+        "oov_frac": 1.3226792097942451e-06
+      },
+      "pseudo_r2": 0.0984
+    },
+    "M3_all": {
+      "n": 101046,
+      "coef": {
+        "Intercept": -1.5118,
+        "rarity_mean": 0.5989,
+        "pos": 2.9933,
+        "rarity_mean:pos": -0.916,
+        "log_n_words": 0.6106,
+        "is_heading": 1.2676,
+        "oov_frac": -2.5833
+      },
+      "odds_ratio": {
+        "Intercept": 0.2205,
+        "rarity_mean": 1.8201,
+        "pos": 19.9523,
+        "rarity_mean:pos": 0.4001,
+        "log_n_words": 1.8415,
+        "is_heading": 3.5523,
+        "oov_frac": 0.0755
+      },
+      "p": {
+        "Intercept": 0.0034452487331116835,
+        "rarity_mean": 4.826909322170471e-07,
+        "pos": 1.646235806226782e-17,
+        "rarity_mean:pos": 3.6083161048940575e-39,
+        "log_n_words": 2.9436485170098913e-23,
+        "is_heading": 1.3210215400089882e-17,
+        "oov_frac": 8.541394222350983e-07
+      },
+      "pseudo_r2": 0.1042
+    }
+  },
+  "key_stats": {
+    "正文稀有度主效应 (M1: rarity)": {
+      "coef": 0.0958,
+      "p": 0.4251035591458532,
+      "OR": 1.1006
+    },
+    "门控交互 (M2: rarity×is_heading)": {
+      "coef": -0.6937,
+      "p": 0.00011318048237086653,
+      "OR": 0.4997
+    },
+    "标题位稀有度总效应 (M2): ": null,
+    "位置门控 (M3: rarity×pos)": {
+      "coef": -0.916,
+      "p": 3.6083161048940575e-39,
+      "OR": 0.4001
+    }
+  },
+  "threshold_sensitivity": {
+    "85": {
+      "M1_rarity_coef": 0.0834,
+      "M1_rarity_p": 0.4826597356056722,
+      "M2_interaction_coef": -0.7016,
+      "M2_interaction_p": 0.00010103700101226711
+    },
+    "95": {
+      "M1_rarity_coef": 0.1286,
+      "M1_rarity_p": 0.29881595256294713,
+      "M2_interaction_coef": -0.6813,
+      "M2_interaction_p": 0.00013983579242163451
+    }
+  },
+  "reading_guide": {
+    "M1_rarity<0": "正文内稀有 → 更易被删（伤害长尾）",
+    "M2_interaction>0_and_absorbs": "标题位豁免 → 支持上下文门控叙事",
+    "M3_interaction": "位置门控：负 = 文档越靠后稀有内容越容易被删"
+  }
+}

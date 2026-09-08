@@ -1,0 +1,6 @@
+{
+ "Ultra-FineWeb": "E:\\models\\ultrax_parts\\Ultra-FineWeb.parquet",
+ "RedPajama": "E:\\models\\ultrax_parts\\RedPajama.parquet",
+ "AICC": "E:\\models\\ultrax_parts\\AICC.parquet",
+ "FineWeb": "E:\\models\\ultrax_parts\\FineWeb.parquet"
+}
