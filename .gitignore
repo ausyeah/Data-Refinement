@@ -42,3 +42,4 @@ Thumbs.db
 # Jupyter
 .ipynb_checkpoints/
 reports/*.log
+!reports/step2_docs.csv

@@ -170,10 +170,12 @@ def main():
                 doc = next(d for d in doc_lines if d[0] == doc_name)
                 ctx_lines = doc[1][max(0, i - 30):i]
                 ctx_text = "\n".join(ctx_lines)[-4000:]
-                ctx_ids = tk.encode(ctx_text).ids[-args.ctx:]
                 line_ids = tk.encode(l).ids
-                if not line_ids:
+                if not line_ids or len(line_ids) >= args.ctx:
                     continue
+                # 防序列越界：左文截断到 (ctx − 行长 − 1)，保证总长 ≤ ctx
+                limit = max(1, args.ctx - len(line_ids) - 1)
+                ctx_ids = tk.encode(ctx_text).ids[-limit:]
                 seq = torch.tensor([ctx_ids + line_ids], dtype=torch.long, device=dev)
                 with torch.no_grad():
                     lg = model(seq)[0]

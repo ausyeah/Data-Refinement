@@ -106,3 +106,5 @@ git：commit `5714936cff`
 |---|---|---|---|
 | 2026-09-08 | v1 FREEZE：终点点从"稀有×编辑交互"改为 E1a–c（位置/位置×稀有/尾部偏置）+ E2（下游 tail delta） | 阶段 A 探索性数据证伪朴素假设（rarity 主效应 p=0.43），建立位置门控事实 F1–F5；序贯设计，阶段 B 结果尚未产生即冻结 | step2_summary.json / gate_regression.json |
 | 2026-09-08 | **v1.1**：E1b 降级为探索性操纵检查；E1c 改为 token 级、限定知识承载词、附文档内置换零分布；E1a 降为操纵检查；E2 明确为裁决点 | **T2 机械零模型**：后缀截断模拟 rarity×pos=−0.966 ≈ 观测 −0.916（随机删除模拟 ≈0），交互为机械效应，非稀有度感知证据；E1c 行级接触检验 null（n=114，代理过粗） | step3_mechanical_null.json |
+
+| 2026-09-08 | v1.2：审计轨迹改指 docs/AUDIT_MANIFEST.md（远端 main 为权威，本地历史曾重建分叉）；E2 符号约定统一为 Δ = refined − raw（PPL 差>0 与 MRR 差<0 均表 refined 更差，正式表述以冻结 δ_min 为准）；§5.4/词级二分标记为 exploratory 粗代理 | submission 红队（red-method）：commit 哈希在本地 git 不存在、可复现声明夸大、StageB 代码缺陷（因果掩码/序列越界） | docs/AUDIT_MANIFEST.md |

@@ -50,12 +50,12 @@ def new_gpt(vocab_size: int, ctx: int, n_layer: int, n_embd: int, n_head: int, d
             s.mlp = nn.Sequential(nn.Linear(n_embd, 4 * n_embd), nn.GELU(),
                                   nn.Linear(4 * n_embd, n_embd), nn.Dropout(drop))
 
-        def forward(s, x, mask=None, need_w=False):
-            a, w = s.attn(s.ln1(x), s.ln1(x), s.ln1(x), attn_mask=mask,
-                          need_weights=need_w)
+        def forward(s, x, causal=True):
+            # 关键：LM 探针必须是因果注意力。nn.MultiheadAttention 用 is_causal 生效
+            a, _ = s.attn(s.ln1(x), s.ln1(x), s.ln1(x), is_causal=causal)
             x = x + a
             x = x + s.mlp(s.ln2(x))
-            return (x, w) if need_w else x
+            return x
 
     class GPT(nn.Module):
         def __init__(s):
@@ -67,11 +67,11 @@ def new_gpt(vocab_size: int, ctx: int, n_layer: int, n_embd: int, n_head: int, d
             s.ln = nn.LayerNorm(n_embd)
             s.head = nn.Linear(n_embd, vocab_size, bias=False)
 
-        def forward(s, idx):
+        def forward(s, idx, causal=True):
             T = idx.shape[1]
             x = s.drop(s.tok(idx) + s.pos(torch.arange(T, device=idx.device)))
             for b in s.blocks:
-                x = b(x)
+                x = b(x, causal=causal)
             return s.head(s.ln(x))
 
     return GPT()
@@ -205,6 +205,16 @@ def main() -> None:
     torch.save({"model": model.state_dict(), "opt": opt.state_dict(),
                 "step": args.max_steps, "loss": acc_loss}, outdir / "ckpt.pt")
     torch.save(model.state_dict(), outdir / "model.pt")
+    # 每臂独立元数据（协议 §2.2：记录 tokens/epoch/配置，勿互相覆盖）
+    toks_arm = int(len(arr))
+    epochs = args.max_steps * args.batch * args.grad_accum * args.ctx / max(1, toks_arm)
+    (outdir / "arm_meta.json").write_text(json.dumps({
+        "arm": args.arm, "n_tokens_arm": toks_arm, "n_steps": args.max_steps,
+        "approx_epochs": round(epochs, 2),
+        "config": {"n_layer": args.n_layer, "n_embd": args.n_embd, "n_head": args.n_head,
+                   "ctx": args.ctx, "batch": args.batch, "grad_accum": args.grad_accum,
+                   "lr": args.lr, "warmup": args.warmup}, "seed": args.seed,
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
     print("完成 →", outdir)
 
 
