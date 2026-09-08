@@ -1,100 +1,97 @@
-# Pre-registration — SliceAudit
+# Pre-registration — SliceAudit (v1 · 2026-09-08)
 
-> **Must be frozen (git commit hash) before any test-set result is observed.**
-> After freezing, every change requires an entry in §9 with justification.
-> Status: 🟡 DRAFT — to be frozen after Stage-A schema confirmation.
+> **冻结状态：🟢 v1 FREEZE**
+> 规则：冻结后任何修改必须在 §9 修订日志登记理由与时间戳。
+> 设计方法学说明（诚实披露）：本文采用**序贯设计**——阶段 A 探索性结果
+> （§7）先于确认性终点的最终冻结，因为审计对象的真实行为在数据前不可先知。
+> 阶段 B 的确认性终点在**阶段 B 任何结果产生之前**冻结于本节。
 
 ---
 
-## 1. Primary endpoint (confirmatory, single)
+## 1. 背景与阶段 A 已建立的探索性事实（§7 记录，非事后）
 
-**Intersection–union test (IUT).**
+阶段 A 对 UltraX 在 4 语料（AICC / FineWeb / RedPajama-V2 / Ultra-FineWeb）4800 篇文档、
+101,250 行的审计（全部脚本与数据在仓库，commit 追溯）建立了三个事实：
 
-```
-H0: { edit-op × rarity interaction = 0 }  OR  { tail-slice loss ≤ α }
-```
+| # | 事实 | 证据 |
+|---|---|---|
+| F1 | 朴素"稀有→删除"假设在正文行**不成立**（rarity 主效应 +0.096，p=0.43） | 01_slice_audit.py M1 |
+| F2 | **位置是主导预测因子**（pos OR≈0.23，p≈1e-48）；删除率随文档位置单调升 | M1 |
+| F3 | **稀有度效应被位置门控**：rarity×pos = −0.916（p≈4e-39）——文档开头稀有行被保留（OR≈1.8），尾部稀有行被砍 | M3 |
+| F4 | 结构性通道独立：OOV 行 OR≈0.07；标题行强保留（OR≈100） | M2 |
+| F5 | 跨语料方向一致、强度分档：AICC −0.46 / RedPajama −0.48 / FineWeb −0.15 / Ultra-FineWeb −0.12（纯文本行 gap） | step2_summary.json |
 
-Reject only if **both** components are individually rejected at α = 0.05:
-- Component 1: interaction term of the pre-registered model, bootstrap 95% CI excludes 0
-- Component 2: tail-slice loss significant (binomial test, p < 0.05, point estimate > α)
+**因此本文的核心命题（v1 冻结版）**：
 
-IUT controls FWER ≤ α; **no additional multiplicity correction applies** to this family.
+> 工业数据精炼（UltraX 为代表）的聚合收益部分来自**位置性尾截**；
+> 稀有知识在文档内的分布是**尾部偏置**的（后部补充材料），
+> 因此位置门控在切片层面**系统性牺牲长尾内容**——聚合结论掩盖了切片代价。
 
-**Interpretation is pre-bound:**
-- Both hold → mechanism supported, paper proceeds as an audit.
-- Not both → the work is a **negative-result / replication study**; no new mechanism is claimed.
-- Refinement better on tail → **kill criterion** triggered; run TOST and publish informative null.
+## 2. 阶段 B 确认性终点（在阶段 B 任何结果之前冻结）
 
-## 2. Exploratory family
+### 终点 1（机制 · 审计侧，阶段 A 正式化）
+用**独立的校准切分**（此前探索用行已从正式评估中排除或标注）重估：
 
-All of the following are **exploratory**, BH-FDR q = 0.05, marked `*` in tables:
-per-stratum AUROC / ECE / coverage; ablations; indicator comparisons;
-prompt-wording sensitivity; bin-count sensitivity.
+**E1a**：位置主效应。M1 中 pos 系数 < 0，bootstrap 95% CI 上界 < 0。
+**E1b**：位置×稀有度交互。M3 中 rarity×pos 系数 < 0，CI 上界 < 0。
+**E1c**：稀有知识的尾部偏置。文档内稀有 token（zipf<2.5）的位置分布中位数 > 全体 token 中位数。
 
-**Threshold / sweep curves are descriptive only.** No significance stars on curves;
-only the pre-registered operating-point grid enters statistical testing.
+三条**同时**成立（IUT 组合，FWER ≤ α），机制侧通过。
 
-## 3. Pre-registered operating-point grid
+### 终点 2（代价 · 下游侧，阶段 B 探针）
+在独立测试语料上（不参与任何阈值选择）：
 
-| Parameter | Grid |
+**E2**：以稀有度分层的下游基准上，精炼语料训练的探针在 **tail 分层 delta ≤ 0**，
+而 UltraX 宣称的聚合收益（若复现）集中在 head。
+主统计量：tail 分层 delta（精炼−原始）的点估计 + 文档/采样级 bootstrap 95% CI。
+
+### Kill criterion（预绑定）
+- 若 E1a–c 任一条 CI 跨 0 → 机制侧不成立，本文降级为"位置尾截的测量学"负结果论文；
+- 若 E2 tail delta ≥ 0（精炼在尾部**也**更好）→ **本文假设整体死亡**：
+  走 TOST 等价性检验（95% CI ⊂ ±δ_min，δ_min 预注册于阶段 B pilot 后），发表 informative null。
+
+## 3. 探索性族（BH-FDR q=0.05，表内标 *）
+
+词级消失分析（稀有知识 vs 稀有噪声）、实体通道、删除率十分位曲线、
+跨语料强度差异的协变量解释（URL 密度 / 语言 / 长度分布）、
+阈值敏感性、位置窗格（前/中/后三分）分桶、标题机制的细粒度检验。
+
+## 4. 阶段 B 探针协议（冻结前仍需严复核审计，见修订日志）
+
+- 模型：150M–500M（QLoRA/from-scratch 视规模），3–5 seeds，显式方差分解
+- 语料版本：raw / refined / **tail-restored**（raw 尾截切回精炼 —— 反事实，用于归因尾截）
+- 下游：稀有度分层的既有基准 + 自建切片，全部**分层报告**
+- 禁用作难度代理：通过率、NLL（循环定义，见 v1 F1 教训）
+
+## 5. 泄漏与访问纪律
+
+- 阶段 A 的行样本带 `doc` 标识；确认性分析用**独立新切分**（题/文档级哈希 30/70）
+- 所有阈值在校准切分上定；测试切分只终评一次，聚合输出
+- 种子：≥3（目标 5）；bootstrap 纳入训练噪声
+
+## 6. 稀有度与位置定义（冻结）
+
+| 量 | 定义 |
 |---|---|
-| training tokens | {0.5B, 1B, 2B} |
-| synthetic/refined share | {0, 25, 50, 75, 100}% |
-| probe size | {150M, 300M, 500M} |
-| bins | {3, 5} |
-| α | {0.05, 0.10, 0.15} |
+| rarity | wordfreq zipf(en)，OOV 剥离（OOV 单列为结构通道） |
+| rare token | zipf < 2.5（敏感性：2.0 / 3.0） |
+| pos | 行号 / 文档行数（0–1） |
+| 稀有知识尾部偏置 | 见 E1c |
 
-## 4. Rarity stratification (frozen definition)
+## 7. 阶段 A 探索结果归档（本文件作为审计轨迹）
 
-| Proxy | Definition | Role |
-|---|---|---|
-| `r_freq` | corpus frequency of subject entities / n-grams | **primary axis** |
-| `r_pass` | small-model empirical pass rate, K=8, T=0.6 | covariate only |
-| `r_nll` | length-normalised NLL of the text | secondary proxy |
+脚本：`src/01_slice_audit.py`（v3）`src/02_gate_regression.py`
+产物：`reports/step2_summary.json`、`reports/step2_gate_regression.json`、`figures/fig2_stageA_v3.png`
+git：commit `5714936cff`
 
-- Bins: quantiles computed **on the calibration split only** (head / torso / tail).
-- Mandatory cross-checks: Spearman ρ(r_freq, r_nll), ρ(r_freq, r_pass), and the
-  **r_freq × difficulty 3×3 grid** (see §5).
-- Independent control: an externally defined tail subset (not derived from calibration bins).
+## 8. 基础设施备注
 
-## 5. Difficulty axis (circularity control — binding)
+- 语料本地分片：`E:\models\ultrax_parts\{AICC,FineWeb,RedPajama,Ultra-FineWeb}.parquet`
+- 匹配器：rapidfuzz partial_ratio，阈值 90（85/95 敏感性已验），与操作日志 r=0.894
+- 推送通道：api.github.com 的 Git Data API（`push_api.py`），因代理隧道对 github.com 不可靠
 
-**Forbidden as difficulty proxies:** pass rate (`r_pass`) and NLL (`r_nll`) — they are
-already rarity proxies; using them makes the interaction term circular.
+## 9. 修订日志
 
-**Allowed:** reasoning steps, text length, human-annotated difficulty.
-
-Required analyses:
-- 3×3 grid (rarity × independent difficulty), with dedicated
-  *"rare but easy"* and *"common but hard"* subsets reported separately;
-- regression includes difficulty main effect **and** difficulty × edit interaction;
-- **falsification rule**: if the interaction vanishes after difficulty control,
-  the main hypothesis is rejected and reported as such.
-
-## 6. Splits, leakage and access discipline
-
-- Splits by content hash: **calibration 30% / test 70%**; frozen in `configs/splits.json`.
-- All thresholds, bin quantiles and indicator calibrations are fitted **on the calibration
-  split only**.
-- The test set is evaluated **once**, by a single script that emits aggregate results only.
-- Intermediate test-set tables are never written to disk.
-
-## 7. Seeds and variance
-
-- Primary experiments: **3 seeds minimum, 5 targeted**, with explicit variance decomposition
-  (seed variance vs. sample variance).
-- Bootstrap CIs must incorporate training noise; sample-level bootstrap alone is insufficient.
-
-## 8. Reproducibility of external components
-
-- Dataset/dataset-version, model revision, temperature=0, sampling seed, prompt hash
-  recorded for every call.
-- Where a closed model is used: core subset re-sampled at a ≥4-week interval;
-  ≥2 generators cross-checked, one of them a locally hosted open-weight model;
-  main conclusions must hold across generators.
-
-## 9. Revision log
-
-| Date | Change | Reason |
-|---|---|---|
-| *(empty until freeze)* | | |
+| 日期 | 修改 | 理由 | 证据 |
+|---|---|---|---|
+| 2026-09-08 | v1 FREEZE：终点点从"稀有×编辑交互"改为 E1a–c（位置/位置×稀有/尾部偏置）+ E2（下游 tail delta） | 阶段 A 探索性数据证伪朴素假设（rarity 主效应 p=0.43），建立位置门控事实 F1–F5；序贯设计，阶段 B 结果尚未产生即冻结 | step2_summary.json / gate_regression.json |
