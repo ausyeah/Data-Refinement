@@ -32,6 +32,11 @@ venv/
 *.token
 secrets/
 
+# 内部材料（含个人信息/求职叙事，本地保留、不入库、不推送）
+docs/IDEA_SUMMARY_FOR_EXPERTS.md
+paper/chinaxiv/ChinaXiv提交清单.md
+reports/redteam/
+
 # 系统与编辑器
 .DS_Store
 Thumbs.db
