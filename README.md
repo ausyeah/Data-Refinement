@@ -4,11 +4,23 @@
 
 > 中文说明见文末。
 
-[![Status](https://img.shields.io/badge/status-stage%20A%20-%20exploration-blue)]()
+[![Preprint](https://img.shields.io/badge/preprint-ChinaXiv%20202609.00041-blue)](https://doi.org/10.12074/202609.00041)
 [![Hardware](https://img.shields.io/badge/hardware-RTX%204060%20Laptop%208GB-green)]()
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 ---
+
+## Preprint
+
+**SliceAudit: Positional Tail-Truncation in LLM Data Refinement — A Sliced Audit of UltraX**
+黄浩 (sole author) · ChinaXiv preprint, 2026-09-08
+
+- 中文版：数据精炼的切片级审计：以 UltraX 为例的位置性尾截与稀有度代价测量
+- DOI: [10.12074/202609.00041](https://doi.org/10.12074/202609.00041) · CSTR: 32003.36.ChinaXiv.202609.00041
+- Cite as: `ChinaXiv:202609.00041V1`
+
+> Preprint — not yet peer reviewed. Stage A (sliced audit) is complete; Stage B (downstream
+> cost, E2) is the OPEN part of the paper and is reported as such.
 
 ## The question
 
@@ -94,14 +106,28 @@ python src/00_probe_ultrax.py --n 200
 ## Roadmap
 
 - [x] Research plan + pre-registration
-- [ ] **Stage A step 0**: confirm UltraX triple schema *(in progress)*
-- [ ] Rarity stratification protocol
-- [ ] Stage A: edit-operation × rarity distribution **(go/no-go gate)**
-- [ ] Stage B: probe training, sliced delta
+- [x] **Stage A step 0**: confirm UltraX triple schema
+- [x] Rarity stratification protocol
+- [x] Stage A: edit-operation × rarity distribution *(no rarity main effect; deletion is positional)*
+- [x] **Preprint published on ChinaXiv** (2026-09-08) — [DOI 10.12074/202609.00041](https://doi.org/10.12074/202609.00041)
+- [ ] Stage B: probe training, sliced delta (E2) — *paused; reported as OPEN in the preprint*
 - [ ] Stage C: calibration curve and failure boundary
-- [ ] arXiv preprint + full open-source release
 
-## Citation / attribution
+## Citation
+
+If you build on this audit, please cite the preprint:
+
+```bibtex
+@misc{huang2026sliceaudit,
+  title  = {SliceAudit: Positional Tail-Truncation in LLM Data Refinement --- A Sliced Audit of UltraX},
+  author = {Huang, Hao},
+  year   = {2026},
+  doi    = {10.12074/202609.00041},
+  note   = {ChinaXiv preprint, ChinaXiv:202609.00041V1}
+}
+```
+
+## Attribution
 
 This work audits **UltraX** (arXiv:2607.08646) and uses `openbmb/UltraX-Preview`
 (Apache-2.0). We are grateful to the OpenBMB / MiniCPM team for open-sourcing not just
@@ -121,4 +147,5 @@ UltraX 证明了聚合效用（1B 模型 16B 精炼 tokens 优于 20B 原始 tok
 核心设计：**因变量是分层 delta，不是平均分**——这是"审计"与"复现报告"的分界线。
 全流程在单张 RTX 4060 Laptop 8GB 上可复现。
 
-**状态**：阶段 A 探查中，尚未有实验结果。
+**状态**：阶段 A 已完成并发布 ChinaXiv 预印本（2026-09-08，DOI [10.12074/202609.00041](https://doi.org/10.12074/202609.00041)）；
+阶段 B（下游代价 E2）暂停，稿中如实标为 OPEN。
