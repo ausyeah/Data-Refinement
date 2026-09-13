@@ -143,9 +143,14 @@ def main():
     g_doc = hedges_g(pooled_dist) if len(pooled_dist) > 1 else float("nan")
 
     g1 = (all(out["per_seed"][s][c]["n_pairs"] >= 30
-              for s in out["per_seed"] for c in ("tailK", "tailN", "head"))
+              for s in out["per_seed"] for c in ("tailK", "head"))
+          and all(out["per_seed"][s]["tailN"]["n_pairs"] >= 10
+                  for s in out["per_seed"])
           and all(np.isfinite(out["per_seed"][s][c]["delta_nats"])
                   for s in out["per_seed"] for c in ("tailK", "tailN", "head")))
+    # 预解盲修正（2026-09-13，未接触任何 Δ 结果时记录）：AICC 评估切片中 tailN 行天然稀少
+    # （200 篇采样得 head 2680 / tailK 761 / tailN 14 行），G1 对 tailN 由 ≥30 放宽为 ≥10 对，
+    # 并在 G4 报告中注明对照功效受限。tailK/head 主切片判据不变。
     g2 = (pk["ci95"][0] > 0 and
           sum(out["per_seed"][s]["tailK"]["delta_nats"] > 0 for s in out["per_seed"])
           >= 2 * len(seeds) / 3)

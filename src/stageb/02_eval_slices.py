@@ -103,6 +103,8 @@ def main():
     ap.add_argument("--n-layer", type=int, default=8)
     ap.add_argument("--n-embd", type=int, default=512)
     ap.add_argument("--n-head", type=int, default=8)
+    ap.add_argument("--max-docs", type=int, default=200,
+                    help="评估文档数上限（取 eval 文件前缀，确定性抽样）")
     args = ap.parse_args()
 
     import torch
@@ -147,7 +149,7 @@ def main():
 
     # 先只对目标类行评估（head/tailK/tailN）→ 全部行会太慢
     class_rows = {"head": [], "tailK": [], "tailN": []}
-    for doc_name, lines in doc_lines[:200]:        # 抽样 200 篇，pilot 评估足够
+    for doc_name, lines in doc_lines[:args.max_docs]:        # 前缀确定性抽样
         n_tot = len(lines)
         for i, l in enumerate(lines):
             if not l.strip():
@@ -179,11 +181,19 @@ def main():
                 # 防序列越界：左文截断到 (ctx − 行长 − 1)，保证总长 ≤ ctx
                 limit = max(1, args.ctx - len(line_ids) - 1)
                 ctx_ids = tk.encode(ctx_text).ids[-limit:]
+                if not ctx_ids:
+                    # 文档首行无上文：用 <|doc|> 作单 token 起始上下文，避免空切片
+                    ctx_ids = [tk.token_to_id("<|doc|>")]
                 seq = torch.tensor([ctx_ids + line_ids], dtype=torch.long, device=dev)
                 with torch.no_grad():
-                    lg = model(seq)[0]
-                lg = lg[:, len(ctx_ids) - 1:-1]   # 对齐 line tokens 的预测
-                lg = lg.reshape(-1, lg.size(-1))
+                    lg = model(seq)                    # (1, L, V)——保留 batch 维
+                # 按显式数量取位：第 t 位预测 token t+1，对齐 line tokens
+                n_line = len(line_ids)
+                start = len(ctx_ids) - 1
+                lg = lg[:, start:start + n_line, :]    # (1, m, V)
+                if lg.size(1) == 0:
+                    continue
+                lg = lg.reshape(-1, lg.size(-1))       # (m, V)
                 tgt = torch.tensor(line_ids[:lg.size(0)], dtype=torch.long, device=dev)
                 if lg.size(0) == 0:
                     continue
