@@ -134,8 +134,11 @@ def main():
         doc_lines.append((doc_name, cur))
 
     results = {"n_docs": len(doc_lines)}
-    # 打分行级指标（CPU/GPU 一次性，控制批大小）
+    docs_by_name = dict(doc_lines)
+    # 文档级配对累积：(arm, cls, doc) → [nll_sum, n_tok, mrr_sum, mrr_n]
+    # 03_gate 用它做文档级配对 bootstrap（协议 §4：主统计量为文档级 Δ）
     from collections import defaultdict
+    per_doc = defaultdict(lambda: [0.0, 0, 0.0, 0])
     acc = defaultdict(lambda: {"n": 0, "sum_ppl": 0.0, "mrr_sum": 0.0, "mrr_n": 0})
 
     def score_doc(model, lines):
@@ -167,8 +170,8 @@ def main():
             nlls, mrrs = [], []
             for doc_name, i, l in rows:
                 # 简单近似：左上下文=该行前文（截断），单行计 loss
-                doc = next(d for d in doc_lines if d[0] == doc_name)
-                ctx_lines = doc[1][max(0, i - 30):i]
+                doc_lines_cur = docs_by_name[doc_name]
+                ctx_lines = doc_lines_cur[max(0, i - 30):i]
                 ctx_text = "\n".join(ctx_lines)[-4000:]
                 line_ids = tk.encode(l).ids
                 if not line_ids or len(line_ids) >= args.ctx:
@@ -186,7 +189,12 @@ def main():
                     continue
                 loss = torch.nn.functional.cross_entropy(
                     lg.float(), tgt, reduction="none")
+                ntok = int(lg.size(0))
+                nll_sum = float(loss.sum().item())
                 nlls.append(loss.mean().item())
+                pd = per_doc[(arm_name, cls, doc_name)]
+                pd[0] += nll_sum
+                pd[1] += ntok
                 # MRR：每个 knowledge token
                 for j, tid in enumerate(tgt.tolist()):
                     z = zipf_frequency(tk.decode([tid]).strip().lower(), "en")
@@ -198,12 +206,22 @@ def main():
                     rk = int((topi == tid).nonzero(as_tuple=True)[0]) + 1 if (topi == tid).any() else None
                     if rk:
                         mrrs.append(1.0 / rk)
+                        pd[2] += 1.0 / rk
+                        pd[3] += 1
             mean_ppl = math.exp(sum(nlls) / len(nlls)) if nlls else None
             mean_mrr = sum(mrrs) / len(mrrs) if mrrs else None
             acc[f"{cls}:{arm_name}"] = {"n_lines": len(nlls), "ppl": mean_ppl,
                                          "mrr": mean_mrr}
 
-    out = {"config": cfg, "classes": dict(acc)}
+    # 文档级配对结构 → 03_gate 的 bootstrap 输入
+    per_doc_out = {}
+    for (arm, cls, doc), (s, t, ms, mn) in per_doc.items():
+        if t == 0:
+            continue
+        per_doc_out.setdefault(cls, {}).setdefault(doc, {})[arm] = {
+            "nll_sum": s, "n_tok": t, "mrr_sum": ms, "mrr_n": mn}
+
+    out = {"config": cfg, "classes": dict(acc), "per_doc": per_doc_out}
     out_path = Path(args.out) if args.out else \
         ROOT / "reports" / f"pilot_eval_{Path(args.raw_dir).name}__{Path(args.ref_dir).name}.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)

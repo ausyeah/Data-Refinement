@@ -51,8 +51,13 @@ def new_gpt(vocab_size: int, ctx: int, n_layer: int, n_embd: int, n_head: int, d
                                   nn.Linear(4 * n_embd, n_embd), nn.Dropout(drop))
 
         def forward(s, x, causal=True):
-            # 关键：LM 探针必须是因果注意力。nn.MultiheadAttention 用 is_causal 生效
-            a, _ = s.attn(s.ln1(x), s.ln1(x), s.ln1(x), is_causal=causal)
+            # 关键：LM 探针必须是因果注意力。
+            # torch>=2.6 要求 is_causal 搭配显式 attn_mask（bool True=禁止注意）
+            T = x.shape[1]
+            mask = (torch.triu(torch.ones(T, T, dtype=torch.bool, device=x.device), 1)
+                    if causal else None)
+            a, _ = s.attn(s.ln1(x), s.ln1(x), s.ln1(x), attn_mask=mask,
+                          is_causal=causal)
             x = x + a
             x = x + s.mlp(s.ln2(x))
             return x
@@ -94,6 +99,11 @@ def build_tokenizer(force: bool):
 
 def load_arm_ids(arm: str, tokenizer):
     f = RUNS / ("train_raw.txt" if arm == "raw" else "train_refined.txt")
+    # 编码缓存：tokenizer 确定性 → 同一 vocab 的编码只做一次（6 次运行共享）
+    cache = TOK_DIR / f"ids_{arm}.npy"
+    if cache.exists():
+        print(f"  编码缓存命中 {cache.name}", flush=True)
+        return np.load(cache)
     print(f"  编码 {f.name} ...", flush=True)
     ids = []
     DOC = tokenizer.token_to_id("<|doc|>")
@@ -104,6 +114,7 @@ def load_arm_ids(arm: str, tokenizer):
             else:
                 ids.extend(tokenizer.encode(line.strip()).ids)
     arr = np.array(ids, dtype=np.uint16)
+    np.save(cache, arr)
     return arr
 
 

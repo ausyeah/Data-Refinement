@@ -1,20 +1,22 @@
-# Pilot 运行指南（在你自己的终端跑 GPU）
+# Pilot 运行指南
 
-> **为什么不能在这里跑**：WorkBuddy 会话沙箱拿不到 GPU（nvidia-smi 报 NVML 初始化失败），
-> 但代码已用 CPU 冒烟验证（tokenizer → 训练 → checkpoint 全链路通过）。
-> **请在普通终端（PowerShell / CMD）里执行以下命令。**
+> **2026-09-13 更新**：ZCode 会话沙箱已可直用 GPU（驱动 595.79 / CUDA 13.2；torch 2.6.0+cu124
+> 实测 autocast+backward 正常，4060 上 ~32–38k tok/s）。训练由沙箱后台脚本顺序执行：
+> `python D:\论文\_tmp_run_pilot.py`（日志 `runs/pilot/_train.log`；每条命令自带 --resume）。
+> **torch≥2.6 注意**：`nn.MultiheadAttention` 的 `is_causal` 必须配显式 attn_mask（01 已修复）。
+> 以下手跑流程保留作后备。
 
 ## 0. 前置（一次性）
 
 ```powershell
-# 1) 用与脚本一致的 Python（或你自己的）安装 CUDA 版 torch
-#    4060 Laptop 驱动较新，可试 cu124；报错再降 cu121
-C:\Users\26315\.workbuddy\binaries\python\envs\default\Scripts\pip.exe install torch --index-url https://download.pytorch.org/whl/cu124
-# 国内慢的话可加镜像环境变量或分文件下载；tokenizers 已装好
+# venv 已建于 D:\论文\envs\stageb（torch 2.6.0+cu124 / tokenizers / numpy / wordfreq）
+# 若需重建：
+python -m venv D:\论文\envs\stageb
+D:\论文\envs\stageb\Scripts\python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cu124
+D:\论文\envs\stageb\Scripts\python.exe -m pip install tokenizers numpy wordfreq
 
-# 2) 验证
-C:\Users\26315\.workbuddy\binaries\python\envs\default\Scripts\python.exe -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
-# 预期：True NVIDIA GeForce RTX 4060 Laptop GPU
+# 验证
+D:\论文\envs\stageb\Scripts\python.exe -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 ```
 
 ## 1. 跑 pilot（两臂 × 3 seeds = 6 次训练）
@@ -25,14 +27,14 @@ $env:HF_HOME = "E:\hf-cache"
 $env:PILOT_DIR = "D:\论文\artical\runs\pilot"     # 数据已备好（00_prep_slices 产物）
 
 # 每臂每 seed 一个进程；建议一次只跑一个（8GB 卡装不下两个）
-C:\Users\26315\.workbuddy\binaries\python\envs\default\Scripts\python.exe src\stageb\01_train_probe.py --arm raw      --out runs\pilot\raw_s0 --seed 0
-C:\Users\26315\.workbuddy\binaries\python\envs\default\Scripts\python.exe src\stageb\01_train_probe.py --arm refined  --out runs\pilot\ref_s0 --seed 0
+D:\论文\envs\stageb\Scripts\python.exe src\stageb\01_train_probe.py --arm raw      --out runs\pilot\raw_s0 --seed 0
+D:\论文\envs\stageb\Scripts\python.exe src\stageb\01_train_probe.py --arm refined  --out runs\pilot\ref_s0 --seed 0
 # ... seed 1、2 同理（raw_s1/ref_s1/raw_s2/ref_s2）
 ```
 
-- 默认配置 ≈50M（8L·d512·8H），ctx 512，micro-batch 8 × grad-accum 8 = 32k tok/步。
+- 实测 ≈59M 参数（8L·d512·8H + 全量 32k 词表），ctx 512，micro-batch 8 × grad-accum 8 = 32k tok/步。
 - **等 token 口径自动满足**：两臂同 max-steps × 同 batch（每步处理 token 相同）。
-- 断点续跑：同一命令加 `--resume`。
+- 断点续跑：同一命令加 `--resume`。编码缓存：`runs/pilot/tok/ids_{arm}.npy`（首跑生成，6 次共享）。
 - 每 500 步存一次 checkpoint（`ckpt.pt`），结束另存 `model.pt`。
 
 ### 预期墙钟
