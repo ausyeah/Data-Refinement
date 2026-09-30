@@ -9,7 +9,7 @@ checkpoints/
 *.pt
 *.pth
 
-# HuggingFace 缓存（已重定向到 E:\hf-cache，见 SETUP.md）
+# HuggingFace 缓存（见 SETUP.md 的重定向说明）
 hf-cache/
 .cache/
 
@@ -31,6 +31,14 @@ venv/
 .env.*
 *.token
 secrets/
+
+# 代理工具的内部运行状态（含会话 UUID、hook 快照、finding ledger）
+# 本仓库已转公开，这类目录绝不能跟进去
+.mimosa/
+.workbuddy/
+.agents/
+.claude/
+*.log
 
 # 内部材料（含个人信息/求职叙事，本地保留、不入库、不推送）
 docs/IDEA_SUMMARY_FOR_EXPERTS.md
